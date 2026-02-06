@@ -15,8 +15,8 @@ var (
 type TaskService interface {
 	CreateTask(ctx context.Context, title string, assignee *string) (*domain.Task, error)
 	GetTask(ctx context.Context, id string) (*domain.Task, error)
-	ListTasks(ctx context.Context, status *domain.TaskStatus, assignee *string) ([]*domain.Task, error)
-	UpdateTaskStatus(ctx context.Context, id string, status domain.TaskStatus) (*domain.Task, error)
+	ListTasks(ctx context.Context, filter domain.TaskFilter) ([]*domain.Task, error)
+	UpdateStatus(ctx context.Context, id string, status domain.TaskStatus) (*domain.Task, error)
 	DeleteTask(ctx context.Context, id string) error
 }
 
@@ -47,13 +47,13 @@ func (s *taskService) CreateTask(
 	return s.repo.Create(ctx, task)
 }
 
-func (s *taskService) UpdateTaskStatus(
+func (s *taskService) UpdateStatus(
 	ctx context.Context,
 	id string,
 	status domain.TaskStatus,
 ) (*domain.Task, error) {
 
-	if !isValidStatus(status) {
+	if !domain.IsValidStatus(status) {
 		return nil, ErrInvalidStatus
 	}
 
@@ -89,27 +89,15 @@ func (s *taskService) GetTask(
 
 func (s *taskService) ListTasks(
 	ctx context.Context,
-	status *domain.TaskStatus,
-	assignee *string,
+	filter domain.TaskFilter,
 ) ([]*domain.Task, error) {
 
-	filter := domain.TaskFilter{
-		Status:   status,
-		Assignee: assignee,
-		Limit:    20,
-		Offset:   0,
-	}
+	// filter := domain.TaskFilter{
+	// 	Status:   status,
+	// 	Assignee: assignee,
+	// 	Limit:    20,
+	// 	Offset:   0,
+	// }
 
 	return s.repo.List(ctx, filter)
-}
-
-func isValidStatus(s domain.TaskStatus) bool {
-	switch s {
-	case domain.StatusTodo,
-		domain.StatusInProgress,
-		domain.StatusDone:
-		return true
-	default:
-		return false
-	}
 }

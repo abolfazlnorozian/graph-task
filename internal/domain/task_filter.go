@@ -6,3 +6,14 @@ type TaskFilter struct {
 	Limit    int
 	Offset   int
 }
+
+func IsValidStatus(s TaskStatus) bool {
+	switch s {
+	case StatusTodo,
+		StatusInProgress,
+		StatusDone:
+		return true
+	default:
+		return false
+	}
+}
