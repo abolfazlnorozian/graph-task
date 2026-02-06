@@ -1,9 +1,13 @@
 package postgres
 
-import "database/sql"
+import (
+	"database/sql"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
+)
 
 func NewDB(dbURL string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", dbURL)
+	db, err := sql.Open("pgx", dbURL)
 	if err != nil {
 		return nil, err
 	}

@@ -1,0 +1,231 @@
+definitions:
+  domain.TaskStatus:
+    enum:
+    - todo
+    - in_progress
+    - done
+    type: string
+    x-enum-varnames:
+    - StatusTodo
+    - StatusInProgress
+    - StatusDone
+  http.CreateRequest:
+    properties:
+      assignee:
+        type: string
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  http.ErrorResponse:
+    properties:
+      error:
+        example: invalid request body
+        type: string
+    type: object
+  http.TaskResponse:
+    properties:
+      assignee:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  http.UpdateStatusRequest:
+    properties:
+      status:
+        $ref: '#/definitions/domain.TaskStatus'
+    required:
+    - status
+    type: object
+info:
+  contact: {}
+paths:
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: List tasks with optional filtering and pagination
+      parameters:
+      - description: Task status
+        enum:
+        - todo
+        - in_progress
+        - done
+        in: query
+        name: status
+        type: string
+      - description: Assignee username
+        in: query
+        name: assignee
+        type: string
+      - default: 20
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/http.TaskResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: List tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task in the system
+      parameters:
+      - description: Create task payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Task created successfully
+          schema:
+            $ref: '#/definitions/http.TaskResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Create a task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Delete task
+      tags:
+      - tasks
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a task by its ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Get task by ID
+      tags:
+      - tasks
+  /tasks/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update status of a task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update status payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.TaskResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Update task status
+      tags:
+      - tasks
+swagger: "2.0"

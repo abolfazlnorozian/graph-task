@@ -18,7 +18,17 @@ func NewTaskHandler(s service.TaskService) *TaskHandler {
 	return &TaskHandler{service: s}
 }
 
-// POST /tasks
+// CreateTask godoc
+// @Summary      Create a task
+// @Description  Create a new task in the system
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        request body http.CreateRequest true "Create task payload"
+// @Success      201 {object} http.TaskResponse "Task created successfully"
+// @Failure      400 {object} http.ErrorResponse "Invalid request body"
+// @Failure      500 {object} http.ErrorResponse "Internal server error"
+// @Router       /tasks [post]
 func (h *TaskHandler) Create(c *gin.Context) {
 	var req CreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,6 +49,20 @@ func (h *TaskHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, FromDomain(task))
 }
 
+// List godoc
+// @Summary      List tasks
+// @Description  List tasks with optional filtering and pagination
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        status    query     string  false  "Task status" Enums(todo,in_progress,done)
+// @Param        assignee  query     string  false  "Assignee username"
+// @Param        limit     query     int     false  "Limit"   default(20)
+// @Param        offset    query     int     false  "Offset"  default(0)
+// @Success      200  {array}   http.TaskResponse
+// @Failure      400  {object}  http.ErrorResponse
+// @Failure      500  {object}  http.ErrorResponse
+// @Router       /tasks [get]
 func (h *TaskHandler) List(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -83,6 +107,18 @@ func (h *TaskHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// GetByID godoc
+// @Summary      Get task by ID
+// @Description  Retrieve a task by its ID
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Task ID"
+// @Success      200  {object}  http.TaskResponse
+// @Failure      400  {object}  http.ErrorResponse
+// @Failure      404  {object}  http.ErrorResponse
+// @Failure      500  {object}  http.ErrorResponse
+// @Router       /tasks/{id} [get]
 func (h *TaskHandler) GetByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -104,6 +140,19 @@ func (h *TaskHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, FromDomain(task))
 }
 
+// UpdateStatus godoc
+// @Summary      Update task status
+// @Description  Update status of a task
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string                     true  "Task ID"
+// @Param        request  body      http.UpdateStatusRequest   true  "Update status payload"
+// @Success      200      {object}  http.TaskResponse
+// @Failure      400      {object}  http.ErrorResponse
+// @Failure      404      {object}  http.ErrorResponse
+// @Failure      500      {object}  http.ErrorResponse
+// @Router       /tasks/{id}/status [patch]
 func (h *TaskHandler) UpdateStatus(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -135,6 +184,18 @@ func (h *TaskHandler) UpdateStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, FromDomain(task))
 }
 
+// Delete godoc
+// @Summary      Delete task
+// @Description  Delete a task by ID
+// @Tags         tasks
+// @Accept       json
+// @Produce      json
+// @Param        id   path  string  true  "Task ID"
+// @Success      204  "No Content"
+// @Failure      400  {object}  http.ErrorResponse
+// @Failure      404  {object}  http.ErrorResponse
+// @Failure      500  {object}  http.ErrorResponse
+// @Router       /tasks/{id} [delete]
 func (h *TaskHandler) Delete(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
