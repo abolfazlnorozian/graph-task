@@ -308,6 +308,12 @@ const docTemplate = `{
                 "assignee": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.TaskStatus"
+                },
                 "title": {
                     "type": "string"
                 }
