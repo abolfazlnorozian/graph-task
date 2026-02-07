@@ -40,6 +40,7 @@ func (h *TaskHandler) Create(c *gin.Context) {
 		c.Request.Context(),
 		req.Title,
 		req.Assignee,
+		req.Status,
 	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

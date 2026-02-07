@@ -13,7 +13,7 @@ var (
 )
 
 type TaskService interface {
-	CreateTask(ctx context.Context, title string, assignee *string) (*domain.Task, error)
+	CreateTask(ctx context.Context, title string, assignee *string, status *domain.TaskStatus) (*domain.Task, error)
 	GetTask(ctx context.Context, id string) (*domain.Task, error)
 	ListTasks(ctx context.Context, filter domain.TaskFilter) ([]*domain.Task, error)
 	UpdateStatus(ctx context.Context, id string, status domain.TaskStatus) (*domain.Task, error)
@@ -32,15 +32,24 @@ func (s *taskService) CreateTask(
 	ctx context.Context,
 	title string,
 	assignee *string,
+	status *domain.TaskStatus,
 ) (*domain.Task, error) {
 
 	if title == "" {
 		return nil, ErrEmptyTitle
 	}
 
+	finalStatus := domain.StatusTodo
+	if status != nil {
+		if !domain.IsValidStatus(*status) {
+			return nil, ErrInvalidStatus
+		}
+		finalStatus = *status
+	}
+
 	task := &domain.Task{
 		Title:    title,
-		Status:   domain.StatusTodo,
+		Status:   finalStatus,
 		Assignee: assignee,
 	}
 
